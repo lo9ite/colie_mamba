@@ -8,11 +8,12 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 import torch
+from model_mamba_lowlight import MambaLowlight
 
 parser = argparse.ArgumentParser(description='CoLIE with INF_MAMBA (Mamba + UNet)')
 parser.add_argument('--input_folder', type=str, default='input/dataset/LOLdataset/eval15/low')
-parser.add_argument('--output_folder', type=str, default='output/dataset/LOLdataset/eval15/mamba_high_v2')
-parser.add_argument('--down_size', type=int, default=256, help='downsampling size for training')
+parser.add_argument('--output_folder', type=str, default='output/dataset/LOLdataset/eval15/mamba_high_v2_32')
+parser.add_argument('--down_size', type=int, default=32, help='downsampling size for training')
 parser.add_argument('--epochs', type=int, default=1000, help='training epochs per image')
 # Mamba相关参数
 parser.add_argument('--base_channels', type=int, default=32, help='UNet base channels')

@@ -11,11 +11,18 @@ import glob
 
 def main():
     # Configurations
+    output = ['high', 'mamba_high', 'mamba_high_v1', 'mamba_high_v2', 'mamba_high_v2_128',
+              'mamba_high_v2_64', 'mamba_high_v2_32', 'mamba_high_v3', 'mamba_high_v3_3',
+              'mamba_adaptive']
+    # high             Average: PSNR: 16.365888 dB, SSIM: 0.507813  colie
+    # mamba_high        Average: PSNR: 16.232402 dB, SSIM: 0.499025  three branch
+    # mamba_high_v2_128 Average: PSNR: 15.916072 dB, SSIM: 0.491395  128
+    # *mamba_adaptive    Average: PSNR: 16.540389 dB, SSIM: 0.442301
 
-    # GT - Ground-truth;
+    # GT - Ground-truth
     # Gen: Generated / Restored / Recovered images
     folder_GT = '/home/lijin/PycharmProjects/colie/input/dataset/LOLdataset/eval15/high'
-    folder_Gen = ('/home/lijin/PycharmProjects/colie/output/dataset/LOLdataset/eval15/mamba_high_v1')
+    folder_Gen = f'/home/lijin/PycharmProjects/colie/output/dataset/LOLdataset/eval15/{output[9]}'
 
     crop_border = 4
     suffix = ''  # suffix for Gen images
