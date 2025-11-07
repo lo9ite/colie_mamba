@@ -12,8 +12,8 @@ from model_mamba_lowlight import MambaLowlight
 
 parser = argparse.ArgumentParser(description='CoLIE with INF_MAMBA (Mamba + UNet)')
 parser.add_argument('--input_folder', type=str, default='input/dataset/LOLdataset/eval15/low')
-parser.add_argument('--output_folder', type=str, default='output/dataset/LOLdataset/eval15/mamba_high_v2_32')
-parser.add_argument('--down_size', type=int, default=32, help='downsampling size for training')
+parser.add_argument('--output_folder', type=str, default='output/dataset/LOLdataset/eval15/mamba_high_v2')
+parser.add_argument('--down_size', type=int, default=128, help='downsampling size for training')
 parser.add_argument('--epochs', type=int, default=1000, help='training epochs per image')
 # Mamba相关参数
 parser.add_argument('--base_channels', type=int, default=32, help='UNet base channels')
@@ -21,10 +21,10 @@ parser.add_argument('--d_state', type=int, default=16, help='Mamba d_state')
 parser.add_argument('--d_conv', type=int, default=4, help='Mamba d_conv')
 parser.add_argument('--expand', type=int, default=2, help='Mamba expand ratio')
 # 损失函数权重
-parser.add_argument('--alpha', type=float, required=True, help='weight for sparsity loss')
-parser.add_argument('--beta', type=float, required=True, help='weight for TV loss')
-parser.add_argument('--gamma', type=float, required=True, help='weight for exposure loss')
-parser.add_argument('--delta', type=float, required=True, help='weight for fidelity loss')
+parser.add_argument('--alpha', type=float, default=1, help='weight for sparsity loss')
+parser.add_argument('--beta', type=float, default=20, help='weight for TV loss')
+parser.add_argument('--gamma', type=float, default=8, help='weight for exposure loss')
+parser.add_argument('--delta', type=float, default=5, help='weight for fidelity loss')
 parser.add_argument('--L', type=float, default=0.5)
 # 训练参数
 parser.add_argument('--lr', type=float, default=1e-5, help='learning rate')

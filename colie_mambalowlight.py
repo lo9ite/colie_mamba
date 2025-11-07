@@ -9,6 +9,7 @@ from PIL import Image
 from tqdm import tqdm
 import torch
 import torch.nn.functional as F
+from losses import SASWLoss
 
 parser = argparse.ArgumentParser(description='CoLIE with Multi-Direction Mamba')
 parser.add_argument('--input_folder', type=str, default='input/dataset/LOLdataset/eval15/low')
@@ -52,6 +53,7 @@ for img_name in tqdm(np.sort(os.listdir(opt.input_folder))):
         loss_tv = l_TV(illu_lr)
         loss_exp = l_exp(illu_lr)
         loss_sparsity = torch.mean(img_v_fixed_lr)
+        criterion = SASWLoss()
 
         total_loss = (
             opt.delta * loss_fidelity +

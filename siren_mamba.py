@@ -164,10 +164,10 @@ class INF_MAMBA(nn.Module):
 
         # 坐标嵌入拼接
         coord_emb = self.get_coord_embedding(H, W, device).repeat(B, 1, 1, 1)  # (B,2,H,W)
-        x_in = torch.cat([img_v, coord_emb], dim=1)  # (B,3,H,W)
+        #x_in = torch.cat([img_v, coord_emb], dim=1)  # (B,3,H,W)
 
         # 输入处理
-        x = self.input_conv(x_in)  # (B, base_channels, H, W)
+        x = self.input_conv(img_v)  # (B, base_channels, H, W)
         # 修改9：输入归一化时转置维度
         x = x.permute(0, 2, 3, 1)  # (B,H,W,base_channels)
         x = self.input_norm(x)

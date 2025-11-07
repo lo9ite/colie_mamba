@@ -17,10 +17,10 @@ parser.add_argument('--epochs', type=int, default=100)
 parser.add_argument('--window', type=int, default=7, help='context window size')
 parser.add_argument('--L', type=float, default=0.5)
 # loss fuction weigth parameters
-parser.add_argument('--alpha', type=float, required=True)
-parser.add_argument('--beta', type=float, required=True)
-parser.add_argument('--gamma', type=float, required=True)
-parser.add_argument('--delta', type=float, required=True)
+parser.add_argument('--alpha', type=float, default=1)
+parser.add_argument('--beta', type=float, default=20)
+parser.add_argument('--gamma', type=float, default=8)
+parser.add_argument('--delta', type=float, default=5)
 opt = parser.parse_args()
 
 

@@ -1,3 +1,5 @@
+from torchvision.transforms.functional import gaussian_blur
+
 from utils import *
 from loss import *
 from siren_mambalowlight import INF_MAMBA
@@ -10,18 +12,40 @@ from tqdm import tqdm
 import torch
 import torch.nn.functional as F
 
+class L_texture(nn.Module):
+    """
+    Structure-Texture Decomposition Loss for Denoising.
+    Penalizes high-frequency texture/noise in the reflectance map.
+    """
+    def __init__(self, kernel_size=3, sigma=1.0):
+        super(L_texture, self).__init__()
+        self.kernel_size = kernel_size
+        self.sigma = sigma
+
+    def forward(self, x):
+        # Create a blurred version of the image to represent the "structure"
+        structure = gaussian_blur(x, kernel_size=self.kernel_size, sigma=self.sigma)
+        # The "texture" is the difference between the original and the structure
+        texture = x - structure
+        # Penalize the L1 norm of the texture component
+        return torch.mean(torch.abs(texture))
+
+
 parser = argparse.ArgumentParser(description='CoLIE + Multi-Direction Mamba + Adaptive Exposure Control')
 parser.add_argument('--input_folder', type=str, default='input/dataset/LOLdataset/eval15/low')
-parser.add_argument('--output_folder', type=str, default='output/dataset/LOLdataset/eval15/mamba_adaptive')
+parser.add_argument('--output_folder', type=str, default='output/dataset/LOLdataset/eval15/mamba_adaptive_v2')
 parser.add_argument('--down_size', type=int, default=128)
 parser.add_argument('--epochs', type=int, default=800)
 parser.add_argument('--base_channels', type=int, default=32)
 # 初始超参数
-parser.add_argument('--alpha', type=float, default=0.08)
-parser.add_argument('--beta', type=float, default=0.3)
-parser.add_argument('--gamma', type=float, default=0.4)
-parser.add_argument('--delta', type=float, default=1.2)
-parser.add_argument('--L', type=float, default=0.45)
+parser.add_argument('--alpha', type=float, default=0.1)
+parser.add_argument('--beta', type=float, default=0.4)
+parser.add_argument('--gamma', type=float, default=0.3)
+parser.add_argument('--delta', type=float, default=1.5)
+# --- Denoising Loss Weight ---
+parser.add_argument('--epsilon', type=float, default=0.3, help='Weight for reflectance smoothness (denoising)')
+
+parser.add_argument('--L', type=float, default=0.5)
 parser.add_argument('--lr', type=float, default=1e-5)
 parser.add_argument('--weight_decay', type=float, default=3e-4)
 opt = parser.parse_args()
@@ -48,6 +72,7 @@ for img_name in tqdm(np.sort(os.listdir(opt.input_folder))):
 
     # 损失函数
     l_exp, l_TV = L_exp(16, opt.L), L_TV()
+    l_texture = L_texture()
 
     # 当前动态权重
     alpha, beta, gamma, delta, L_target = opt.alpha, opt.beta, opt.gamma, opt.delta, opt.L
@@ -64,12 +89,14 @@ for img_name in tqdm(np.sort(os.listdir(opt.input_folder))):
         loss_tv = l_TV(illu_lr)
         loss_exp = l_exp(illu_lr)
         loss_sparsity = torch.mean(img_v_fixed_lr)
+        loss_denoise = l_texture(img_v_fixed_lr)
 
         total_loss = (
             delta * loss_fidelity +
             beta * loss_tv +
             gamma * loss_exp +
-            alpha * loss_sparsity
+            alpha * loss_sparsity +
+            loss_denoise * opt.epsilon
         )
         total_loss.backward()
         optimizer.step()
@@ -88,8 +115,8 @@ for img_name in tqdm(np.sort(os.listdir(opt.input_folder))):
                     alpha *= (1 - ADAPT_STEP)
 
                 # 限制范围防止失控
-                gamma = float(np.clip(gamma, 0.1, 1.2))
-                alpha = float(np.clip(alpha, 0.02, 0.2))
+                gamma = float(np.clip(gamma, 0.1, 20))
+                alpha = float(np.clip(alpha, 0.02, 1))
 
         # ---------- 日志输出 ----------
         if (epoch + 1) % PRINT_INTERVAL == 0:
