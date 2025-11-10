@@ -79,9 +79,9 @@ class INF_MAMBA(nn.Module):
 
     def forward(self, img_v):
         B, _, H, W = img_v.shape
-        coord = self.get_coord(H, W, img_v.device).repeat(B, 1, 1, 1)
-        x = torch.cat([img_v, coord], dim=1)
-        x = self.input(x)
+        #coord = self.get_coord(H, W, img_v.device).repeat(B, 1, 1, 1)
+        #x = torch.cat([img_v, coord], dim=1)
+        x = self.input(img_v)
         x1, skip1 = self.enc1(x)  # 128 -> 64
         x2, skip2 = self.enc2(x1) # 64 -> 32
         x_b = self.bottleneck(x2)
